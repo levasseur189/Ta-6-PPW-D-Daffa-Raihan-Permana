@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Dashboard</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- CSS External -->
+    <link rel="stylesheet" href="css.css">
+</head>
+
+<body class="min-h-screen transition-all duration-700 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 animate-gradient" id="body">
+
+    <!-- BACKGROUND ANIMATION -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-20 w-72 h-72 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"></div>
+        <div class="absolute top-40 right-20 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float" style="animation-delay: 2s;"></div>
+        <div class="absolute bottom-20 left-40 w-80 h-80 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float" style="animation-delay: 4s;"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto p-6 relative z-10">
+
+        <!-- HEADER -->
+        <div class="glass-effect rounded-3xl p-6 mb-8 shadow-2xl">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <svg class="w-16 h-16 animate-spin-slow text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="5"/>
+                        <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+                    </svg>
+                    <div>
+                        <h1 class="text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                            Weather Dashboard
+                        </h1>
+                        <p class="text-sm opacity-70 mt-1">Real-time weather updates</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-3">
+                    <button id="unitBtn" onclick="toggleUnit()" class="glass-effect btn-hover px-6 py-3 rounded-2xl font-bold text-lg shadow-lg hover:scale-110 transition-all">°C</button>
+                    <button id="themeBtn" onclick="toggleTheme()" class="glass-effect btn-hover p-3 rounded-2xl shadow-lg hover:scale-110 transition-all">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEARCH BAR -->
+        <div class="relative mb-8">
+            <div class="glass-effect rounded-3xl p-6 flex gap-4 items-center shadow-2xl">
+                <div class="bg-gradient-to-r from-blue-500 to-purple-500 p-3 rounded-2xl">
+                    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+
+                <input id="searchInput" type="text" placeholder="Search for any city worldwide..."
+                    class="flex-1 bg-transparent outline-none text-gray-800 placeholder-gray-600 text-lg font-medium"
+                    onkeyup="handleSearch(event)">
+
+                <button onclick="refreshWeather()" class="btn-hover bg-gradient-to-r from-green-400 to-blue-500 p-3 rounded-2xl shadow-lg hover:scale-110 transition-all">
+                    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                </button>
+
+                <button onclick="getMyLocation()"
+                    class="btn-hover bg-gradient-to-r from-pink-500 to-red-500 p-3 rounded-2xl shadow-lg hover:scale-110 transition-all">
+                    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 8a4 4 0 100 8 4 4 0 000-8zm8.94 3h-2.02A7 7 0 0013 5.06V3h-2v2.06A7 7 0 005.08 11H3v2h2.08A7 7 0 0011 18.94V21h2v-2.06A7 7 0 0018.94 13h2v-2z"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div id="suggestions" class="hidden absolute w-full mt-3 z-20"></div>
+        </div>
+
+        <!-- FAVORITE CITIES -->
+        <div class="mb-8">
+            <h3 class="text-2xl font-bold mb-4 flex items-center gap-2 text-white drop-shadow-lg">
+                <svg class="w-6 h-6 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                </svg>
+                Favorite Cities
+            </h3>
+            <div id="favorites" class="flex gap-3 flex-wrap"></div>
+        </div>
+
+        <div id="loading" class="hidden flex flex-col justify-center items-center h-96">
+            <svg class="w-20 h-20 animate-spin text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            <p class="mt-6 text-xl font-semibold animate-pulse text-white">Loading weather data...</p>
+        </div>
+
+        <div id="currentWeather" class="hidden glass-effect rounded-3xl p-10 mb-8 shadow-2xl"></div>
+        <div id="forecastContainer" class="hidden">
+            <h3 class="text-3xl font-bold flex items-center gap-3 mb-6 text-white drop-shadow-lg">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                5-Day Forecast
+            </h3>
+            <div id="forecast" class="grid grid-cols-2 md:grid-cols-5 gap-5"></div>
+        </div>
+
+    </div>
+
+    <!-- JS External -->
+    <script src="app.js"></script>
+</body>
+</html>
